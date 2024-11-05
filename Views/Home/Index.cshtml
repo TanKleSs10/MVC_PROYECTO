@@ -1,4 +1,4 @@
-﻿@model List<Cliente>
+﻿@model List<ASPNETMVCCheckboxDemo.Models.Cliente>
 
 @{
     ViewData["Title"] = "Lista de Clientes";
@@ -6,31 +6,89 @@
 
 <h2>Lista de Clientes</h2>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Compañía</th>
-            <th>Nombre</th>
-            <th>Apellidos</th>
-            <th>Correo</th>
-            <th>Teléfono</th>
-            <th>Cargo</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var cliente in Model)
-        {
-            <tr>
-                <td>@cliente.Id</td>
-                <td>@cliente.Compania</td>
-                <td>@cliente.Nombre</td>
-                <td>@cliente.Apellidos</td>
-                <td>@cliente.Correo</td>
-                <td>@cliente.Tel</td>
-                <td>@cliente.Cargo</td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="container mt-4">
+    <form asp-action="Search" method="post" class="form-inline row d-flex justify-content-center gap-3">
+        <div class="mb-2 col-12 d-flex gap-4 d-flex justify-content-center">
+            <label class="form-label">Buscar por:</label>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="SearchField" id="Id" value="Id">
+                <label class="form-check-label" for="Id">Id</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="SearchField" id="Compania" value="Compania">
+                <label class="form-check-label" for="Compania">Compañía</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="SearchField" id="Nombre" value="Nombre">
+                <label class="form-check-label" for="Nombre">Nombre</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="SearchField" id="Apellidos" value="Apellidos">
+                <label class="form-check-label" for="Apellidos">Apellidos</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="SearchField" id="Correo" value="Correo">
+                <label class="form-check-label" for="Correo">Correo</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="SearchField" id="Tel" value="Tel">
+                <label class="form-check-label" for="Tel">Teléfono</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="SearchField" id="Cargo" value="Cargo">
+                <label class="form-check-label" for="Cargo">Cargo</label>
+            </div>
+        </div>
+        <div class="form-floating mb-2 col-6">
+            <input type="text" class="form-control" id="Query" name="Query" placeholder="Ingrese el valor de búsqueda">
+            <label for="Query" class="mx-3">Valor de búsqueda</label>
+        </div>
+        <div class="my-auto col-12 d-flex justify-content-center gap-2">
+            <label class="form-label">Orden:</label>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="Order" id="Ascendente" value="ASC" checked>
+                <label class="form-check-label" for="Ascendente">Ascendente</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="Order" id="Descendente" value="DESC">
+                <label class="form-check-label" for="Descendente">Descendente</label>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mb-2 col-6 mx-auto">Buscar</button>
+    </form>
+</div>
 
+@if (Model != null && Model.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Compañía</th>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Correo</th>
+                <th>Teléfono</th>
+                <th>Cargo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cliente in Model)
+            {
+                <tr>
+                    <td>@cliente.Id</td>
+                    <td>@cliente.Compania</td>
+                    <td>@cliente.Nombre</td>
+                    <td>@cliente.Apellidos</td>
+                    <td>@cliente.Correo</td>
+                    <td>@cliente.Tel</td>
+                    <td>@cliente.Cargo</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No se encontraron resultados.</p>
+}

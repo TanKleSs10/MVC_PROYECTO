@@ -1,7 +1,11 @@
 using ASPNETMVCCheckboxDemo.Models;
-using ASPNETMVCCheckboxDemo.Repositories; // Esto debe coincidir con el espacio de nombres de ClienteRepository
+using ASPNETMVCCheckboxDemo.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ASPNETMVCCheckboxDemo.Controllers
 {
@@ -10,9 +14,10 @@ namespace ASPNETMVCCheckboxDemo.Controllers
         private readonly ClienteRepository _clienteRepository;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger, AccessDbConnection dbConnection)
+        public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
         {
             _logger = logger;
+            var dbConnection = AccessDbConnection.GetInstance(configuration);
             _clienteRepository = new ClienteRepository(dbConnection);
         }
 
@@ -38,6 +43,29 @@ namespace ASPNETMVCCheckboxDemo.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        [HttpPost]
+        public IActionResult Search(SearchModel model)
+        {
+            if (model == null || string.IsNullOrEmpty(model.Query)) { 
+                ModelState.AddModelError("SearchField", "Por favor, seleccione un campo de búsqueda."); 
+                ModelState.AddModelError("Query", "El campo de búsqueda no puede estar vacío."); 
+                return View("Index", _clienteRepository.GetAll()); 
+            }
+
+            var results = _clienteRepository.Search(model.SearchField, model.Query, model.Order);
+            return View("Index", results);
+        }
+
+        public IActionResult DisplayCliente(int id)
+        {
+            var cliente = _clienteRepository.GetAll().FirstOrDefault(c => c.Id == id);
+            if (cliente == null)
+            {
+                return NotFound();
+            }
+            return View(cliente);
         }
     }
 }

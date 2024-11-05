@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Data.OleDb;
+using ASPNETMVCCheckboxDemo.Models;
 
-namespace ASPNETMVCCheckboxDemo.Repositories  // Asegúrate de que este sea el espacio de nombres correcto
+namespace ASPNETMVCCheckboxDemo.Repositories
 {
     public class ClienteRepository
     {
@@ -12,12 +13,10 @@ namespace ASPNETMVCCheckboxDemo.Repositories  // Asegúrate de que este sea el e
             _dbConnection = dbConnection;
         }
 
-        // Método para obtener todos los clientes
         public List<Cliente> GetAll()
         {
             List<Cliente> clientes = new List<Cliente>();
-            string query = "SELECT * FROM clientes";
-
+            string query = "SELECT * FROM clientes ORDER BY Apellidos";
             using (OleDbCommand command = new OleDbCommand(query, _dbConnection.GetConnection()))
             {
                 using (OleDbDataReader reader = command.ExecuteReader())
@@ -26,22 +25,61 @@ namespace ASPNETMVCCheckboxDemo.Repositories  // Asegúrate de que este sea el e
                     {
                         Cliente cliente = new Cliente
                         {
-                            Id = reader.IsDBNull(0) ? 0 : reader.GetInt32(0),  // Asegúrate de que el tipo sea correcto
+                            Id = reader.IsDBNull(0) ? 0 : reader.GetInt32(0),
                             Compania = reader.IsDBNull(1) ? null : reader.GetString(1),
-                            Nombre = reader.IsDBNull(2) ? null : reader.GetString(2),
-                            Apellidos = reader.IsDBNull(3) ? null : reader.GetString(3),
+                            Nombre = reader.IsDBNull(3) ? null : reader.GetString(3),
+                            Apellidos = reader.IsDBNull(2) ? null : reader.GetString(2),
                             Correo = reader.IsDBNull(4) ? null : reader.GetString(4),
-                            Tel = reader.IsDBNull(5) ? null : reader.GetString(5),
-                            Cargo = reader.IsDBNull(6) ? null : reader.GetString(6)
+                            Tel = reader.IsDBNull(6) ? null : reader.GetString(6),
+                            Cargo = reader.IsDBNull(5) ? null : reader.GetString(5)
                         };
-
                         clientes.Add(cliente);
                     }
                 }
             }
-
             return clientes;
         }
 
+        public List<Cliente> Search(string field, string query, string order)
+        {
+            List<Cliente> clientes = new List<Cliente>();
+            string sqlQuery;
+
+            if (string.IsNullOrEmpty(field) || field.Length == 0 || query.Length == 0 || string.IsNullOrEmpty(query))
+            {
+                sqlQuery = $"SELECT * FROM clientes ORDER BY Apellidos {order}";
+            }
+            else
+            {
+                sqlQuery = $"SELECT * FROM clientes WHERE {field} LIKE @query ORDER BY {field} {order}";
+            }
+
+            using (OleDbCommand command = new OleDbCommand(sqlQuery, _dbConnection.GetConnection()))
+            {
+                if (!string.IsNullOrEmpty(field) && !string.IsNullOrEmpty(query))
+                {
+                    command.Parameters.AddWithValue("@query", "%" + query + "%");
+                }
+
+                using (OleDbDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Cliente cliente = new Cliente
+                        {
+                            Id = reader.IsDBNull(0) ? 0 : reader.GetInt32(0),
+                            Compania = reader.IsDBNull(1) ? null : reader.GetString(1),
+                            Nombre = reader.IsDBNull(3) ? null : reader.GetString(3),
+                            Apellidos = reader.IsDBNull(2) ? null : reader.GetString(2),
+                            Correo = reader.IsDBNull(4) ? null : reader.GetString(4),
+                            Tel = reader.IsDBNull(6) ? null : reader.GetString(6),
+                            Cargo = reader.IsDBNull(5) ? null : reader.GetString(5)
+                        };
+                        clientes.Add(cliente);
+                    }
+                }
+            }
+            return clientes;
+        }
     }
 }
